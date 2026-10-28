@@ -138,6 +138,26 @@ body {
 .eyebrow { font-size: 3.1cqw; letter-spacing: .08em; line-height: 1.45; }
 .names { font-size: 12cqw; white-space: normal; }
 .guest-callout { width: 90%; margin: 1.2cqh auto 0; font-family: var(--script); font-style: italic; font-size: 10cqw; line-height: 1.12; font-weight: 600; letter-spacing: 0; color: var(--gold); text-shadow: 0 0 3cqw rgba(183,221,247,.25); overflow-wrap: anywhere; }
+.guest-divider {
+  position: relative;
+  width: 32cqw;
+  height: 1px;
+  margin: 1.35cqh auto .2cqh;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: .85;
+}
+.guest-divider::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.5cqw;
+  height: 1.5cqw;
+  border: .25cqw solid var(--gold);
+  background: var(--emerald);
+  transform: translate(-50%, -50%) rotate(45deg);
+  box-sizing: border-box;
+}
 .sub { font-size: 3.2cqw; letter-spacing: .12em; }
 .eyebrow { font-size: 2.5cqw; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
 .names { font-family: var(--script); font-style: italic; font-style: italic; font-size: 10cqw; line-height: 1.15; margin-top: 2.5cqh; color: var(--gold); white-space: nowrap; }
@@ -240,6 +260,7 @@ body {
     <div class="copy">
       <div class="eyebrow rise" style="--d:3.6s" id="t-lead"></div>
       <div class="guest-callout rise" style="--d:3.9s" id="t-guest"></div>
+      <div class="guest-divider rise" style="--d:4.05s" aria-hidden="true"></div>
       <div class="names rise" style="--d:4.2s" id="t-names"></div>
       <div class="sub rise" style="--d:5s" id="t-honour"></div>
       <div class="rule rise" style="--d:5.4s"></div>
