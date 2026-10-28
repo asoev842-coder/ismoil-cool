@@ -338,7 +338,14 @@ body.generic-invitation #t-guest { display: none; }
   <input type="file" id="file" accept="image/*" hidden>
 </div>
 
-<script src="./guest-data.js?v=20261028g"></script>
+<script src="./guest-data.js?v=20261028h"></script>
+<script>
+  // Fallback for the two newest personalized invitations.
+  window.WEDDING_GUESTS = Object.assign({}, window.WEDDING_GUESTS || {}, {
+    "Em7Gl": "Акаи Эмомали ва Апаи Гулчахон и ваша семья",
+    "Ol8As": "Асоев Олимджон"
+  });
+</script>
 <script>
 /* ===== Настройки: меняйте текст здесь ===== */
 const CONFIG = {
