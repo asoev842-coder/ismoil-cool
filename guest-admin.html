@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Управление гостями</title>
+<style>body{font:16px system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#24302b}h1{font-size:26px}input{font:inherit;padding:10px;border:1px solid #bbb;border-radius:8px;box-sizing:border-box;width:100%}button{font:inherit;padding:10px 14px;border:0;border-radius:8px;background:#174d3c;color:white;margin:6px 6px 6px 0;cursor:pointer}.secondary{background:#e9eee9;color:#20332b}.guest{border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0}.url{overflow-wrap:anywhere;font-size:14px;color:#315d4d}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}small{color:#667} @media(max-width:520px){.row{grid-template-columns:1fr}}</style></head>
+<body><h1>Персональные ссылки для гостей</h1><p>Введи адрес опубликованного приглашения, добавь гостей и скачай обновлённый <code>guest-data.js</code>. Затем загрузи его в корень репозитория GitHub вместо старого файла.</p>
+<label for="base">Адрес приглашения</label><input id="base" placeholder="https://asoev842-coder.github.io/ismoil-cool/">
+<div class="row"><div><label for="name">Имя гостя / семьи</label><input id="name" placeholder="Например, Семья Алиевых"></div><div><label for="code">Короткий код (необязательно)</label><input id="code" placeholder="Создадим автоматически"></div></div>
+<button id="add">Добавить гостя</button><div id="list"></div><button id="download">Скачать guest-data.js</button><button class="secondary" id="csv">Скачать список CSV</button>
+<script>
+let guests={"a7K2m":"Ака Хаджи и ваша семья","m9Q4p":"Семья Алиевых"};
+const $=id=>document.getElementById(id);
+function makeCode(){return Math.random().toString(36).slice(2,7)}
+function render(){const base=$('base').value.trim().replace(/\/$/,'');$('list').innerHTML='';Object.entries(guests).forEach(([code,name])=>{const d=document.createElement('div');d.className='guest';const n=document.createElement('input');n.value=name;n.setAttribute('aria-label','Имя гостя');n.onchange=()=>{guests[code]=n.value;render()};const c=document.createElement('p');c.textContent='Код: '+code;const u=document.createElement('p');u.className='url';u.textContent=base?base+'/?g='+encodeURIComponent(code):'Укажи адрес сайта выше';const del=document.createElement('button');del.className='secondary';del.textContent='Удалить';del.onclick=()=>{delete guests[code];render()};const copy=document.createElement('button');copy.className='secondary';copy.textContent='Копировать ссылку';copy.onclick=()=>{if(base)navigator.clipboard.writeText(u.textContent)};d.append(n,c,u,copy,del);$('list').append(d)})}
+$('base').value=location.href.replace(/guest-admin\.html.*$/,'');$('base').oninput=render;
+$('add').onclick=()=>{const name=$('name').value.trim();if(!name){alert('Введи имя гостя');return}let code=$('code').value.trim()||makeCode();if(guests[code]){alert('Такой код уже есть');return}guests[code]=name;$('name').value='';$('code').value='';render()};
+$('download').onclick=()=>{const s='window.WEDDING_GUESTS = '+JSON.stringify(guests,null,2)+';\n';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/javascript;charset=utf-8'}));a.download='guest-data.js';a.click();URL.revokeObjectURL(a.href)};
+$('csv').onclick=()=>{const rows=[['code','guest'],...Object.entries(guests)];const s=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+s],{type:'text/csv;charset=utf-8'}));a.download='guests.csv';a.click();URL.revokeObjectURL(a.href)};
+render();
+</script></body></html>
