@@ -336,7 +336,7 @@ body {
   <input type="file" id="file" accept="image/*" hidden>
 </div>
 
-<script src="./guest-data.js"></script>
+<script src="./guest-data.js?v=20261028d"></script>
 <script>
 /* ===== Настройки: меняйте текст здесь ===== */
 const CONFIG = {
@@ -532,13 +532,17 @@ $("file").addEventListener("change", e => {
 });
 
 
-// Personal guest name from a short URL such as ?g=a7K2m
+// Personal guest name and singular/plural greeting for each invitation link
 (function personalizeGuest() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get("g");
   const records = window.WEDDING_GUESTS || {};
   if (code && Object.prototype.hasOwnProperty.call(records, code)) {
     CONFIG.guest = records[code];
+    const singularMale = ["Ibr6g", "Vas9y", "Kr3im", "Ab2dl", "Ab7rh", "Fz4dn", "Tj6dn", "Vb8kr"];
+    const singularFemale = ["a7K2m", "Ga6na"];
+    if (singularMale.includes(code)) CONFIG.lead = "Приглашаем дорогого гостя";
+    if (singularFemale.includes(code)) CONFIG.lead = code === "Ga6na" ? "Приглашаем дорогую гостью" : "Приглашаем дорогую гостью";
   }
 })();
 drawVines(); drawWreath(); fill();
