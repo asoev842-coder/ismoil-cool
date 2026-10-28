@@ -1,18 +1,44 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Управление гостями</title>
-<style>body{font:16px system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#24302b}h1{font-size:26px}input{font:inherit;padding:10px;border:1px solid #bbb;border-radius:8px;box-sizing:border-box;width:100%}button{font:inherit;padding:10px 14px;border:0;border-radius:8px;background:#174d3c;color:white;margin:6px 6px 6px 0;cursor:pointer}.secondary{background:#e9eee9;color:#20332b}.guest{border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0}.url{overflow-wrap:anywhere;font-size:14px;color:#315d4d}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}small{color:#667} @media(max-width:520px){.row{grid-template-columns:1fr}}</style></head>
-<body><h1>Персональные ссылки для гостей</h1><p>Введи адрес опубликованного приглашения, добавь гостей и скачай обновлённый <code>guest-data.js</code>. Затем загрузи его в корень репозитория GitHub вместо старого файла.</p>
-<label for="base">Адрес приглашения</label><input id="base" placeholder="https://asoev842-coder.github.io/ismoil-cool/">
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Управление гостями</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}body{font:16px/1.5 system-ui,-apple-system,sans-serif;max-width:820px;margin:24px auto;padding:0 16px;color:#24302b;background:#f7f8f6}h1{font-size:27px;line-height:1.2}h2{font-size:19px;margin:0 0 12px}.panel{background:#fff;border:1px solid #e0e5df;border-radius:14px;padding:16px;margin:16px 0}input{font:inherit;padding:11px;border:1px solid #bbc5bd;border-radius:8px;width:100%;margin:5px 0 12px;background:white;color:#18251e}label{font-weight:600;font-size:14px}button{font:inherit;padding:10px 14px;border:0;border-radius:8px;background:#174d3c;color:white;margin:6px 6px 6px 0;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.secondary{background:#e9eee9;color:#20332b}.danger{background:#f5e8e5;color:#8c3024}.guest{border:1px solid #ddd;border-radius:10px;padding:12px;margin:10px 0;background:#fff}.url{overflow-wrap:anywhere;font-size:14px;color:#315d4d}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hint,small{color:#65736a;font-size:13px}.status{padding:10px 12px;border-radius:8px;background:#edf3ee;margin:12px 0;overflow-wrap:anywhere}.status.error{background:#fff0ed;color:#8c3024}.status:empty{display:none}.guest p{margin:5px 0}@media(max-width:520px){.row{grid-template-columns:1fr}.panel{padding:13px}}
+</style></head>
+<body>
+<h1>Персональные ссылки для гостей</h1>
+<p>Меняй имена, добавляй гостей и нажимай «Сохранить на GitHub». Файл обновится автоматически, вручную загружать его не нужно.</p>
+<div class="panel">
+<h2>1. Доступ для сохранения</h2>
+<p class="hint">Нужен GitHub Personal Access Token с доступом только к этому репозиторию и правом Contents: Read and write. Токен используется только в этой вкладке и не сохраняется на устройстве. Не отправляй его никому.</p>
+<label for="token">GitHub token</label><input id="token" type="password" autocomplete="off" placeholder="github_pat_…" spellcheck="false">
+<small>Создай токен: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens. Выбери репозиторий <b>ismoil-cool</b> и разрешение Contents: Read and write.</small>
+</div>
+<div class="panel">
+<h2>2. Добавить гостя</h2>
 <div class="row"><div><label for="name">Имя гостя / семьи</label><input id="name" placeholder="Например, Семья Алиевых"></div><div><label for="code">Короткий код (необязательно)</label><input id="code" placeholder="Создадим автоматически"></div></div>
-<button id="add">Добавить гостя</button><div id="list"></div><button id="download">Скачать guest-data.js</button><button class="secondary" id="csv">Скачать список CSV</button>
+<button id="add">Добавить гостя</button>
+</div>
+<div class="panel">
+<h2>3. Список гостей и ссылки</h2>
+<label for="base">Адрес опубликованного приглашения</label><input id="base" placeholder="https://asoev842-coder.github.io/ismoil-cool/">
+<div id="list"></div>
+<button id="save">Сохранить на GitHub</button><button class="secondary" id="download">Скачать резервную копию</button><button class="secondary" id="csv">Скачать список CSV</button>
+<div id="status" class="status" role="status" aria-live="polite"></div>
+</div>
 <script>
+const REPO='asoev842-coder/ismoil-cool', PATH='guest-data.js', BRANCH='main';
 let guests={"a7K2m":"Ака Хаджи и ваша семья","m9Q4p":"Семья Алиевых"};
 const $=id=>document.getElementById(id);
-function makeCode(){return Math.random().toString(36).slice(2,7)}
-function render(){const base=$('base').value.trim().replace(/\/$/,'');$('list').innerHTML='';Object.entries(guests).forEach(([code,name])=>{const d=document.createElement('div');d.className='guest';const n=document.createElement('input');n.value=name;n.setAttribute('aria-label','Имя гостя');n.onchange=()=>{guests[code]=n.value;render()};const c=document.createElement('p');c.textContent='Код: '+code;const u=document.createElement('p');u.className='url';u.textContent=base?base+'/?g='+encodeURIComponent(code):'Укажи адрес сайта выше';const del=document.createElement('button');del.className='secondary';del.textContent='Удалить';del.onclick=()=>{delete guests[code];render()};const copy=document.createElement('button');copy.className='secondary';copy.textContent='Копировать ссылку';copy.onclick=()=>{if(base)navigator.clipboard.writeText(u.textContent)};d.append(n,c,u,copy,del);$('list').append(d)})}
-$('base').value=location.href.replace(/guest-admin\.html.*$/,'');$('base').oninput=render;
-$('add').onclick=()=>{const name=$('name').value.trim();if(!name){alert('Введи имя гостя');return}let code=$('code').value.trim()||makeCode();if(guests[code]){alert('Такой код уже есть');return}guests[code]=name;$('name').value='';$('code').value='';render()};
+function say(message,error=false){$('status').textContent=message;$('status').className='status'+(error?' error':'')}
+function makeCode(){let code;do{code=Math.random().toString(36).slice(2,7)}while(guests[code]);return code}
+function render(){const base=$('base').value.trim().replace(/\/$/,'');$('list').innerHTML='';Object.entries(guests).forEach(([code,name])=>{const d=document.createElement('div');d.className='guest';const n=document.createElement('input');n.value=name;n.setAttribute('aria-label','Имя гостя');n.onchange=()=>{guests[code]=n.value;};const c=document.createElement('p');c.textContent='Код: '+code;const u=document.createElement('p');u.className='url';u.textContent=base?base+'?g='+encodeURIComponent(code):'Укажи адрес сайта выше';const copy=document.createElement('button');copy.className='secondary';copy.textContent='Копировать ссылку';copy.onclick=async()=>{if(!base){say('Сначала укажи адрес приглашения.',true);return}try{await navigator.clipboard.writeText(u.textContent);say('Ссылка скопирована.')}catch(e){say('Не удалось скопировать автоматически. Выдели ссылку и скопируй её вручную.',true)}};const del=document.createElement('button');del.className='danger';del.textContent='Удалить';del.onclick=()=>{if(confirm('Удалить гостя «'+name+'»?')){delete guests[code];render()}};d.append(n,c,u,copy,del);$('list').append(d)})}
+async function loadGuests(){try{const r=await fetch('https://raw.githubusercontent.com/'+REPO+'/'+BRANCH+'/'+PATH+'?t='+Date.now());if(!r.ok)throw new Error('Не удалось загрузить список');const s=await r.text();const m=s.match(/window\.WEDDING_GUESTS\s*=\s*(\{[\s\S]*?\})\s*;/);if(!m)throw new Error('Формат guest-data.js не распознан');guests=JSON.parse(m[1]);render();say('Список гостей загружен из GitHub.')}catch(e){render();say('Показан резервный список. Проверь подключение к интернету и перезагрузи страницу, чтобы получить актуальные данные.',true)}}
+$('base').value='https://asoev842-coder.github.io/ismoil-cool/';$('base').oninput=render;
+$('add').onclick=()=>{const name=$('name').value.trim();if(!name){say('Введи имя гостя.',true);return}const code=$('code').value.trim()||makeCode();if(guests[code]){say('Такой код уже есть. Выбери другой.',true);return}guests[code]=name;$('name').value='';$('code').value='';render();say('Гость добавлен. Не забудь сохранить изменения на GitHub.')};
+$('save').onclick=async()=>{const token=$('token').value.trim();if(!token){say('Сначала вставь GitHub token в поле выше.',true);$('token').focus();return}const btn=$('save');btn.disabled=true;btn.textContent='Сохраняю…';say('Сохраняю список гостей в GitHub…');try{const headers={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};const url='https://api.github.com/repos/'+REPO+'/contents/'+PATH+'?ref='+BRANCH;const get=await fetch(url,{headers});if(!get.ok)throw new Error(get.status===401?'Токен недействителен или истёк.':get.status===403?'Нет прав на запись. Проверь Contents: Read and write.':get.status===404?'Репозиторий или файл не найден, либо у токена нет доступа.':'GitHub вернул ошибку при чтении файла ('+get.status+').');const current=await get.json();const file='// Имена гостей для персональных ссылок. Добавляй записи в формате "код": "имя".\nwindow.WEDDING_GUESTS = '+JSON.stringify(guests,null,2)+';\n';const encoded=btoa(unescape(encodeURIComponent(file)));const put=await fetch('https://api.github.com/repos/'+REPO+'/contents/'+PATH,{method:'PUT',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({message:'Update wedding guest list from admin panel',content:encoded,sha:current.sha,branch:BRANCH})});if(!put.ok){let detail='';try{detail=(await put.json()).message||''}catch(e){}throw new Error('GitHub не сохранил файл ('+put.status+'). '+detail)}say('Готово! Список гостей сохранён в GitHub. Подожди примерно 1–2 минуты, затем открой персональную ссылку и проверь имя.');$('token').value='';}catch(e){say(e.message||'Не удалось сохранить. Проверь интернет и настройки токена.',true)}finally{btn.disabled=false;btn.textContent='Сохранить на GitHub'}};
 $('download').onclick=()=>{const s='window.WEDDING_GUESTS = '+JSON.stringify(guests,null,2)+';\n';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/javascript;charset=utf-8'}));a.download='guest-data.js';a.click();URL.revokeObjectURL(a.href)};
 $('csv').onclick=()=>{const rows=[['code','guest'],...Object.entries(guests)];const s=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+s],{type:'text/csv;charset=utf-8'}));a.download='guests.csv';a.click();URL.revokeObjectURL(a.href)};
-render();
+render();loadGuests();
 </script></body></html>
