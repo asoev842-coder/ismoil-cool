@@ -249,6 +249,8 @@ body {
   .scene.enter { animation-duration: .01s; }
   .scene.active .rise, .s1.active .stem, .s1.active .leaf, .hint { animation-delay: 0s !important; animation-duration: .01s !important; }
 }
+
+body.generic-invitation #t-guest { display: none; }
 </style>
 
 <div class="stage" id="stage" aria-label="Пригласительное на свадьбу">
@@ -532,17 +534,21 @@ $("file").addEventListener("change", e => {
 });
 
 
-// Personal guest name and singular/plural greeting for each invitation link
+// Personal guest name, or generic invitation when ?g=all
 (function personalizeGuest() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get("g");
+  if (code === "all") document.body.classList.add("generic-invitation");
   const records = window.WEDDING_GUESTS || {};
-  if (code && Object.prototype.hasOwnProperty.call(records, code)) {
+  if (code === "all") {
+    CONFIG.guest = "";
+    CONFIG.lead = "Приглашаем дорогих гостей на торжественный день";
+  } else if (code && Object.prototype.hasOwnProperty.call(records, code)) {
     CONFIG.guest = records[code];
     const singularMale = ["Ibr6g", "Vas9y", "Kr3im", "Ab2dl", "Ab7rh", "Fz4dn", "Tj6dn", "Vb8kr"];
     const singularFemale = ["a7K2m", "Ga6na"];
     if (singularMale.includes(code)) CONFIG.lead = "Приглашаем дорогого гостя";
-    if (singularFemale.includes(code)) CONFIG.lead = code === "Ga6na" ? "Приглашаем дорогую гостью" : "Приглашаем дорогую гостью";
+    if (singularFemale.includes(code)) CONFIG.lead = "Приглашаем дорогую гостью";
   }
 })();
 drawVines(); drawWreath(); fill();
